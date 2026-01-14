@@ -1,0 +1,20 @@
+I've decided to save some time so i added these commands to copypaste and i added some descriptions
+
+Check for updates:
+git status
+
+
+Add files to commit (all):
+git add .
+
+
+Commit:
+git commit -m "message"
+
+
+Update repo -> local:
+git pull
+
+
+Update local -> repo:
+git push

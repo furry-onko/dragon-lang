@@ -2,13 +2,16 @@
 #![allow(unused)]
 use colored::Colorize;
 
-pub fn info(text: &str, variant: u8) {
-	if variant == 0 {
-		println!("{}", text.blue());
-	}
-	else {
-		println!("{}", text.bright_green());
-	}
+pub fn info(text: &str) {
+	println!("{}", text.bright_blue());
+}
+
+pub fn info_green(text: &str) {
+	println!("{}", text.bright_green());
+}
+
+pub fn warn(text: &str) {
+	println!("{}", text.bright_yellow());
 }
 
 pub fn error(text: &str) {
