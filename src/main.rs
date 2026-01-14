@@ -7,7 +7,8 @@ mod visual;
 fn main() {
 	let file = argv::proc(env::args());
 
-	match file {
+	println!("{:?}", &file);
+/*	match file {
 		Ok(f_sum) => {
 			println!("File: {:?}", f_sum.path);
 			println!("Mode: {:?}", f_sum.mode);
@@ -18,5 +19,5 @@ fn main() {
 			}
 			else { unreachable!() }
 		}
-	}
+	}*/
 }
