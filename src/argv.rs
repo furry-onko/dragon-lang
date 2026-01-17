@@ -1,8 +1,9 @@
 /* 2026 - @furry_onko */
 #![allow(unused)]
 
-use crate::visual;
+use crate::{visual, file};
 use std::process;
+use std::env;
 
 #[derive(Debug, PartialEq)]
 #[allow(clippy::enum_variant_names)]
@@ -19,6 +20,7 @@ pub enum Mode {
 	Check,   // Check Code
 	Help,    // Show Help Page
 	Version, // Show Interpreter Version
+	Man,     // Manual pages
 	Unknown(String), // Unknown Parameter
 	Empty,   // No Parameter
 }
@@ -45,26 +47,60 @@ where I: Iterator<Item = String> {
 	// Discard file path
 	argv.next();
 
-	// Check mode
-	let interpreter_mode = match argv.next().as_deref() {
-		Some("run")     => Run,
-		Some("new")     => New,
-		Some("check")   => Check,
-		Some("help")    => Help,
-		Some("version") => Version,
-		Some(cmd)       => Unknown(cmd.to_string()),
-		None            => Empty,
-	};
-	check_interpreter_mode(&interpreter_mode);
+	let curr_dir = env::current_dir().unwrap();
 
-	// Check file
-	match argv.next() {
-		Some(path) => Ok(FileSummary::new(&path, interpreter_mode)),
-		None => Err(ProcErrors::FileNotSpecified),
+	// Check mode
+	let mode = match argv.next().as_deref() {
+		Some("run") => Run,
+		Some("new") => New,
+		Some("check") => Check,
+		Some("help") | Some("-h") => Help,
+		Some("version") | Some("-v") => Version,
+		Some("man") => Man,
+		Some(unkn) => Unknown(unkn.to_string()),
+		None => Empty,
+	};
+
+	match mode {
+		Run => { todo!(); },
+		Check => { todo!(); },
+		New => {
+			let opt_or_name = argv.next().
+				unwrap_or_else(|| {
+					visual::error("No option or name found.");
+					process::exit(1);
+				});
+
+			if opt_or_name == "lib" || opt_or_name == "header" {
+				let lib_name = argv.next().
+					unwrap_or_else(|| {
+						visual::error("No header name found.");
+						process::exit(1);
+					});
+
+				visual::info(&format!("Creating header named \"{}\".", lib_name));
+
+				file::create_file_with_content(
+					&format!("{}.dh", lib_name),
+					&[	"int     cat32",
+						"str     ASCII\n",
+						&format!("exp     '{}.dh'", lib_name)
+					]
+				);
+				visual::info_green("Header created.");
+				process::exit(0);
+			}
+		},
+		Man => {
+			todo!();
+		},
+		_ => execute_in_place(&mode),
 	}
+
+	Ok(FileSummary::new("/path/to/x/y/z", Run))
 }
 
-fn check_interpreter_mode(mode: &Mode) {
+fn execute_in_place(mode: &Mode) {
 	use Mode::*;
 
 	match mode {
@@ -85,7 +121,7 @@ fn check_interpreter_mode(mode: &Mode) {
 				"   check -d     Checks the project given by User\n",
 
 				"Create a new file: (using `new`)",
-				"   lib          Creates new dragon library file (.dh)",
+				"   lib | header Creates new dragon library file (.dh)",
 				"   link         Creates new dragon dynamic library link (.ddl)",
 				"   project      Creates new dragon project (Directory)",
 				"   prg          Creates new dragon program file (.drg)",

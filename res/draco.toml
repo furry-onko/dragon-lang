@@ -1,0 +1,8 @@
+[program]
+name="prog"
+entrypoint="main.drg"
+
+[release]
+name="release_name"
+entrypoint="release.drg"
+version="0.1.0"
