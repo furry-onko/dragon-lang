@@ -3,8 +3,11 @@
 
 use crate::argv;
 use crate::visual;
-use std::fs::File;
-use std::io::Write;
+use std::fs::{self, File};
+use std::io::{self, Write, ErrorKind};
+use std::process;
+use std::env;
+use std::path::Path;
 
 pub fn create_file_with_content (
 	name: &str,
@@ -19,6 +22,21 @@ pub fn create_file_with_content (
 	}
 }
 
-pub fn check_file(file_summary: &argv::FileSummary) {
-	println!("{:?}", file_summary);
+
+pub fn mkdir(dir_name: &str) {
+	match fs::create_dir(dir_name) {
+		Err(e) if e.kind() == ErrorKind::AlreadyExists => {
+			visual::error(&format!("The directory {} already exists", dir_name));
+			process::exit(1);
+		},
+		Err(e) => {
+			visual::error(&format!("Unknown error: {}", e));
+			process::exit(0);
+		},
+		_ => (),
+	}
+}
+
+pub fn location_exists(location: &str) -> bool {
+	Path::new(location).exists()
 }

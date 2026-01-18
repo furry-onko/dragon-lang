@@ -4,11 +4,12 @@ use std::env;
 mod argv;
 mod visual;
 mod file;
+mod interpreter;
 
 fn main() {
 	let file = argv::proc(env::args());
 
 	if let Ok(f_sum) = &file {
-		file::check_file(f_sum);
+		interpreter::checker::initial_file_summary_check(f_sum);
 	}
 }
