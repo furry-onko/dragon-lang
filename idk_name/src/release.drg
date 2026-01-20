@@ -1,0 +1,6 @@
+int     cat32
+str     ASCII
+
+section .main:
+    hlt     0x00
+

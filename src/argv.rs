@@ -65,7 +65,9 @@ where I: Iterator<Item = String> {
 	};
 
 	match mode {
-		Run => { todo!(); },
+		Run => {
+
+		},
 		Check => { todo!(); },
 		New => {
 			let opt_or_name = argv.next().
@@ -318,5 +320,11 @@ fn execute_in_place(mode: &Mode) {
 			process::exit(1);
 		}
 		_ => (),
+	}
+}
+
+fn pre_file_summary_check(summary: FileSummary) {
+	if !file::location_exists(&summary.path) {
+		todo!();
 	}
 }

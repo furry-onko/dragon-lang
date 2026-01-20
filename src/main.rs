@@ -10,6 +10,6 @@ fn main() {
 	let file = argv::proc(env::args());
 
 	if let Ok(f_sum) = &file {
-		interpreter::checker::initial_file_summary_check(f_sum);
+		interpreter::initial_file_summary_check(f_sum);
 	}
 }
