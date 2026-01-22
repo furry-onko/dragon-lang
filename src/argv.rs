@@ -6,13 +6,13 @@ use std::process;
 use std::env;
 use std::path::Path;
 
-#[derive(Debug, PartialEq)]
+/*#[derive(Debug, PartialEq)]
 #[allow(clippy::enum_variant_names)]
 pub enum ProcErrors {
 	FileNotFound(String),
 	FileAccessDenied(String),
 	FileNotSpecified,
-}
+}*/
 
 #[derive(Debug, PartialEq)]
 pub enum Mode {
@@ -42,7 +42,7 @@ impl FileSummary {
 	}
 }
 
-pub fn proc<I>(mut argv: I) -> Result<FileSummary, ProcErrors>
+pub fn proc<I>(mut argv: I) -> FileSummary
 where I: Iterator<Item = String> {
 	use Mode::*;
 
@@ -65,9 +65,7 @@ where I: Iterator<Item = String> {
 	};
 
 	match mode {
-		Run => {
-
-		},
+		Run => { todo!(); },
 		Check => { todo!(); },
 		New => {
 			let opt_or_name = argv.next().
@@ -150,10 +148,12 @@ where I: Iterator<Item = String> {
 					});
 
 				create_prg(&prg_name);
+				process::exit(0);
 			}
 
 			else {
 				create_prg(&opt_or_name);
+				process::exit(0);
 			}
 		},
 		Link => {
@@ -242,10 +242,11 @@ where I: Iterator<Item = String> {
 		Man => {
 			todo!();
 		},
-		_ => execute_in_place(&mode),
+		_ => {
+			execute_in_place(&mode);
+			process::exit(0);
+		},
 	}
-
-	Ok(FileSummary::new("/path/to/x/y/z", Run)) // for debugging purposes
 }
 
 fn create_prg(name: &str) {

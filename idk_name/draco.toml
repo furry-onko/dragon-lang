@@ -1,9 +1,0 @@
-[program]
-name="idk_name"
-entrypoint="main.drg"
-
-[release]
-name="idk_name"
-entrypoint="release.drg"
-version="0.1.0"
-

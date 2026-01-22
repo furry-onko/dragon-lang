@@ -65,3 +65,13 @@ pub fn read_file(path: &str) -> Vec<String> {
 
 	result
 }
+
+/* pub fn check_and_read<F>(path: &str, mut err_action: F) -> Vec<String>
+where F: FnMut() -> () {
+	if !location_exists(path) {
+		err_action();
+		process::exit(1);
+	}
+
+	read_file(path)
+}*/

@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use std::process;
 use crate::argv::{self, FileSummary};
 use crate::file;
