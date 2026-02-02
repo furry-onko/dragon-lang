@@ -71,6 +71,16 @@ pub fn read_file(path: &str) -> Vec<String> {
 	result
 }
 
+pub fn read_file_vec(path: &str) -> Vec<Vec<char>> {
+	let content: Vec<String> = read_file(path);	// Load file content
+	content.into_iter().						// Iterate over file content (lines)
+		map(|line: String| {					// Map lines
+			line.chars().						// Get characters iter
+				// map(|ch: char| ch.to_string()).	// Convert them to Strings
+				collect::<Vec<char>>()			// Collect to Vec<char>
+		}).collect()							// Collect to Vec<Vec<char>>
+}
+
 pub fn extract_file(path: &str) -> Option<&str> {
 	Path::new(path).
 		file_name()?.

@@ -351,9 +351,3 @@ fn execute_in_place(mode: &Mode) {
 		_ => (),
 	}
 }
-
-fn pre_file_summary_check(summary: FileSummary) {
-	if !file::location_exists(&summary.path) {
-		todo!();
-	}
-}
