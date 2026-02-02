@@ -1,5 +1,8 @@
 #![allow(unused)]
 use serde::Deserialize;
+use crate::file;
+use crate::visual;
+use std::process;
 
 #[derive(Debug, Deserialize)]
 pub struct Link {
@@ -31,11 +34,43 @@ pub struct Release {
 	pub version: String
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
 pub enum Tomls {
-	Link,
-	LinkFile,
-	Draco,
-	Program,
-	Release,
+	Link(Link),
+	LinkFile(LinkFile),
+	Draco(Draco),
+}
+
+pub fn parse_toml(path: &str) -> Option<Tomls> {
+	// Check if the file is a Draco.toml and not a .ddl link file
+	if file::extract_file(path) == Some("draco.toml") && file::location_exists(path) {
+		let draco_toml_content: &str = &file::read_file_string(path);
+		if let Ok(draco_toml) = toml::from_str::<Draco>(draco_toml_content) {
+			return Some(Tomls::Draco(draco_toml));
+		}
+		else {
+			visual::error("The syntax of draco.toml file is incorrect.");
+			process::exit(1);
+		}
+	}
+	
+	// Check for .ddl files
+	if file::extract_file_extension(path) == Some(".ddl") {
+		let link_content: &str = &file::read_file_string(path);
+		if let Ok(tomls) = toml::from_str::<Tomls>(link_content) {
+			Some(tomls)
+		}
+		else {
+			visual::error("The syntax of .ddl link file is incorrect.");
+			process::exit(1);
+		}
+	}
+
+	else {
+		visual::error("Invalid file");
+		process::exit(1);
+	}
+
+
 }

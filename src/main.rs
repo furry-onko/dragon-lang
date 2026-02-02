@@ -5,6 +5,7 @@ mod argv;
 mod visual;
 mod file;
 mod interpreter;
+mod toml;
 
 fn main() {
 	let file = argv::proc(env::args());

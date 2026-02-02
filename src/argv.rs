@@ -1,22 +1,15 @@
 /* 2026 - @furry_onko */
 #![allow(unused)]
 
-use crate::{visual, file};
+use crate::{visual, file, toml};
 use std::process;
 use std::env;
 use std::path::Path;
 
-/*#[derive(Debug, PartialEq)]
-#[allow(clippy::enum_variant_names)]
-pub enum ProcErrors {
-	FileNotFound(String),
-	FileAccessDenied(String),
-	FileNotSpecified,
-}*/
-
 #[derive(Debug, PartialEq)]
 pub enum Mode {
 	Run,     // Run Program
+	RunF,    // Run File
 	New,     // New File
 	Check,   // Check Code
 	Help,    // Show Help Page
@@ -49,8 +42,6 @@ where I: Iterator<Item = String> {
 	// Discard file path
 	argv.next();
 
-	let curr_dir = env::current_dir().unwrap();
-
 	// Check mode
 	let mode = match argv.next().as_deref() {
 		Some("run") => Run,
@@ -64,9 +55,40 @@ where I: Iterator<Item = String> {
 		None => Empty,
 	};
 
+	// Perform actions accordingly
 	match mode {
-		Run => { todo!(); },
+		Run => {
+			if let Some(opt) = argv.next() {
+				if opt == "-f" {
+					let file_name = argv.next().
+						unwrap_or_else(|| {
+							visual::error("File not provided.");
+							process::exit(1);
+						});
+					FileSummary::new(&file_name, RunF)
+				}
+				else {
+					visual::error("Invalid switch.");
+					process::exit(1);
+				}
+			}
+			else {
+				let cwd = file::get_cwd();
+				if file::location_exists(&format!("{}/draco.toml", cwd)) {
+					if toml::parse_toml(&format!("{}/draco.toml", cwd)).is_some() {
+						FileSummary::new(&cwd, Run)
+					}
+					else {unreachable!();}
+				}
+				else {
+					visual::error("Could not find draco.toml file.");
+					process::exit(1);
+				}
+			}
+		},
 		Check => { todo!(); },
+
+		// Creating a new thing
 		New => {
 			let opt_or_name = argv.next().
 				unwrap_or_else(|| {
@@ -74,6 +96,7 @@ where I: Iterator<Item = String> {
 					process::exit(1);
 				});
 
+			// New `.dh`
 			if opt_or_name == "lib" || opt_or_name == "header" {
 				let lib_name = argv.next().
 					unwrap_or_else(|| {
@@ -94,6 +117,7 @@ where I: Iterator<Item = String> {
 				process::exit(0);
 			}
 
+			// New project
 			else if opt_or_name == "project" {
 				let project_name = argv.next().
 					unwrap_or_else(|| {
@@ -140,6 +164,7 @@ where I: Iterator<Item = String> {
 				process::exit(0);
 			}
 
+			// New `.drg`
 			else if opt_or_name == "prg" {
 				let prg_name = argv.next().
 					unwrap_or_else(|| {
@@ -151,11 +176,14 @@ where I: Iterator<Item = String> {
 				process::exit(0);
 			}
 
+			// Fallback: create new `.drg`
 			else {
 				create_prg(&opt_or_name);
 				process::exit(0);
 			}
 		},
+
+		// New dynamic link `.ddl` -- it's not .dll mate
 		Link => {
 			// Check link arguments
 			let link_argv = argv.collect::<Vec<String>>();
