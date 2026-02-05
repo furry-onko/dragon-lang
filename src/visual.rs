@@ -82,7 +82,7 @@ pub fn report(
 pub enum SyntaxError {
 	UnclosedBracket,		// Unclosed bracket
 	NegativeReturn,			// `ret` called but no previous context was given
-	JumpTargetNotFound,		// jump to non-exsistent label / section
+	JumpTargetNotFound,		// jump to non-existent label / section
 	InclTargetNotFound,		// `incl` instruction contains bad path
 	InvalidUse,				// `use` instruction points to invalid location
 	NameClash,				// two or more names are the same
@@ -100,7 +100,7 @@ impl SyntaxError {
 		use SyntaxError::*;
 
 		match self {
-			UnclosedBracket 	=> String::from("Replace the opening token with a corresponging token."),
+			UnclosedBracket 	=> String::from("Replace the opening token with a corresponding token."),
 			NegativeReturn  	=> String::from("Remove the `ret` instruction."),
 			JumpTargetNotFound	=> String::from("Change the jump target to existing one or remove the instruction."),
 			InclTargetNotFound	=> String::from("Check the `incl` target."),
@@ -125,11 +125,11 @@ impl SyntaxError {
 			NegativeReturn		=> String::from("You have a `ret` instruction in the starting location."),
 			JumpTargetNotFound	=> String::from("Can't jump to a non-existing label."),
 			InclTargetNotFound	=> String::from("Can't include a non-existing header."),
-			InvalidUse			=> String::from("You are tring to bring a non-existing target into the scope."),
+			InvalidUse			=> String::from("You are trying to bring a non-existing target into the scope."),
 			NameClash			=> String::from("There are 2 or more of the same names in your program."),
-			IncompatibleValue	=> String::from("You are tring to move an incompatible value to a target."),
+			IncompatibleValue	=> String::from("You are trying to move an incompatible value to a target."),
 			IncorrectCast		=> String::from("Some values cannot be casted."),
-			ZeroDivision		=> String::from("Division by zero is not allowed. You can ued `divz` to make division by zero to return it."),
+			ZeroDivision		=> String::from("Division by zero is not allowed. You can use `divz` to make division by zero to return it."),
 			VariableNotFound	=> String::from("You are trying to use a variable that does not exist"),
 			IncorrectOperands	=> String::from("You provided incorrect operands for an operation or the amount of operands is incorrect.0"),
 			UnexpectedToken		=> String::from("You have a token that breaks the syntax rules."),

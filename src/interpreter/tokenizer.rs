@@ -11,7 +11,7 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 	let mut line_counter: u32 = 0;
 	let mut ch_counter: u32 = 0;
 
-	for line in content {
+	for line in content.iter() {
 		line_counter += 1;
 
 		let mut tokens: Vec<Tokens> = Vec::new();
@@ -25,7 +25,7 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 		for ch in line {
 			ch_counter += 1;
 
-			if ch == '\'' {
+			if *ch == '\'' {
 				if in_string {
 					tokens.push(Tokens::String(
 						std::mem::take(&mut string)
@@ -38,24 +38,24 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 				continue;
 			}
 			if in_string {
-				string.push(ch);
+				string.push(*ch);
 				continue;
 			}
 
-			if ch == '/' {
+			if *ch == '/' {
 				if let Some('/') = symbol_stack.last() {
 					symbol_stack.pop();
 				}
 				else {
-					symbol_stack.push(ch);
+					symbol_stack.push(*ch);
 				}
 				continue;
 			}
 
-			match ch {
+			match *ch {
 				';' => {continue;}
 				'[' => {
-					symbol_stack.push(ch);
+					symbol_stack.push(*ch);
 					tokens.push(Tokens::SqBracketOpen);
 					continue;
 				}
@@ -66,10 +66,15 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 						continue;
 					}
 					else {
-						todo!();
+						visual::report(
+							line,
+							line_counter,
+							ch_counter,
+							"Tokenizer",
+							visual::SyntaxError::UnclosedBracket,
+						);
 					}
 				},
-				// '' => {}
 				_ => (),
 			}
 		}
