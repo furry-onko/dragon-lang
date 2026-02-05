@@ -1,5 +1,5 @@
 #![allow(unused)]
-use crate::file;
+use crate::{file, visual};
 use std::process;
 
 pub fn start(path: &str) {
@@ -8,7 +8,12 @@ pub fn start(path: &str) {
 }
 
 fn tokenize(content: Vec<Vec<char>>) -> Program {
+	let mut line_counter: u32 = 0;
+	let mut ch_counter: u32 = 0;
+
 	for line in content {
+		line_counter += 1;
+
 		let mut tokens: Vec<Tokens> = Vec::new();
 		let mut word = String::new();
 		let mut number = String::new();
@@ -18,6 +23,8 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 		let mut symbol_stack: Vec<char> = Vec::new();
 
 		for ch in line {
+			ch_counter += 1;
+
 			if ch == '\'' {
 				if in_string {
 					tokens.push(Tokens::String(
@@ -60,10 +67,6 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 					}
 					else {
 						todo!();
-						/* REFACTORING NEEDED
-							- loops from for to while
-							- add an error reporter/handler (lines, error types etc)
-						*/
 					}
 				},
 				// '' => {}
@@ -87,6 +90,7 @@ struct Line {
 #[derive(Debug)]
 enum Tokens {
 	Number(i64),	// 0-9
+	NumberHex(i64),	// 0x[0-9a-fA-F] / [0-9a-fA-F]h
 	Word(String),	// A-Z
 	String(String),	
 
