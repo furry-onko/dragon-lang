@@ -45,6 +45,12 @@ pub fn report(
 	error: SyntaxError,	// Error type
 ) {
 	use SyntaxError::*;
+	let context: &[char] =
+		if context.is_empty() { &[] }
+		else if context[context.len() - 1] == '\n' {
+			&context[..context.len() - 1]
+		}
+		else {context};
 
 	println!(
 		"{}: {}",
@@ -61,7 +67,8 @@ pub fn report(
 	let context_format: String = context.iter().collect();
 	println!("{} | {}", line, context_format);
 
-	let line_number_len: u32 = ch + (line.to_string().len() as u32);
+	let line_number_len: u32 = (line.to_string().len() as u32) + 3;
+
 	println!(
 		"{}^ {}\n",
 		" ".repeat((ch + line_number_len - 1) as usize),

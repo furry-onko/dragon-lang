@@ -1,5 +1,6 @@
 #![allow(unused)]
-use crate::{file, visual};
+use crate::file;
+use crate::visual::{self, SyntaxError};
 use std::process;
 
 pub fn start(path: &str) {
@@ -9,9 +10,9 @@ pub fn start(path: &str) {
 
 fn tokenize(content: Vec<Vec<char>>) -> Program {
 	let mut line_counter: u32 = 0;
-	let mut ch_counter: u32 = 0;
 
-	for line in content.iter() {
+	for line in &content {
+		let mut ch_counter: u32 = 0;
 		line_counter += 1;
 
 		let mut tokens: Vec<Tokens> = Vec::new();
@@ -19,11 +20,24 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 		let mut number = String::new();
 		let mut string = String::new();
 		
+		let mut expect_token = false;
 		let mut in_string: bool = false;
+		let mut in_comment: bool = false;
 		let mut symbol_stack: Vec<char> = Vec::new();
 
 		for ch in line {
 			ch_counter += 1;
+
+			if *ch == '/' {
+				if let Some('/') = symbol_stack.last() {
+					symbol_stack.pop();
+					in_comment = true;
+				}
+				else {
+					symbol_stack.push(*ch);
+				}
+				continue;
+			}
 
 			if *ch == '\'' {
 				if in_string {
@@ -42,23 +56,22 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 				continue;
 			}
 
-			if *ch == '/' {
-				if let Some('/') = symbol_stack.last() {
-					symbol_stack.pop();
-				}
-				else {
-					symbol_stack.push(*ch);
-				}
-				continue;
-			}
 
 			match *ch {
-				';' => {continue;}
+				';' => {
+					in_comment = true;
+					continue;
+				},
+				',' => {
+					expect_token = true;
+					tokens.push(Tokens::Comma);
+					continue;
+				},
 				'[' => {
 					symbol_stack.push(*ch);
 					tokens.push(Tokens::SqBracketOpen);
 					continue;
-				}
+				},
 				']' => {
 					if let Some('[') = symbol_stack.last() {
 						symbol_stack.pop();
@@ -71,13 +84,39 @@ fn tokenize(content: Vec<Vec<char>>) -> Program {
 							line_counter,
 							ch_counter,
 							"Tokenizer",
-							visual::SyntaxError::UnclosedBracket,
+							SyntaxError::UnclosedBracket,
 						);
 					}
 				},
 				_ => (),
 			}
 		}
+
+		if in_comment {
+			in_comment = false;
+			continue;
+		}
+
+		if !symbol_stack.is_empty() {
+			visual::report(
+				line,
+				line_counter,
+				ch_counter+1,
+				"Tokenizer",
+				SyntaxError::UnclosedBracket,
+			)
+		}
+
+		if in_string && !in_comment {
+			visual::report(
+				line,
+				line_counter,
+				ch_counter,
+				"Tokenizer",
+				visual::SyntaxError::UnclosedBracket,
+			);
+		}
+		
 		println!("{:?}", tokens);
 	}
 
