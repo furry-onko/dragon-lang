@@ -67,11 +67,11 @@ pub fn report(
 	let context_format: String = context.iter().collect();
 	println!("{} | {}", line, context_format);
 
-	let line_number_len: u32 = (line.to_string().len() as u32) + 3;
+	let line_number_len: u32 = (line.to_string().len() as u32);
 
 	println!(
 		"{}^ {}\n",
-		" ".repeat((ch + line_number_len - 1) as usize),
+		" ".repeat((ch + line_number_len +3) as usize),
 		error.get_fix()
 	);
 

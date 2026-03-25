@@ -64,11 +64,9 @@ pub fn read_file_string(path: &str) -> String {
 pub fn read_file(path: &str) -> Vec<String> {
 	let content: String = read_file_string(path);
 
-	let result: Vec<String> = content.split("\n").
+	content.lines().
 		map(|item: &str| item.to_string()).
-		collect();
-
-	result
+		collect()
 }
 
 pub fn read_file_vec(path: &str) -> Vec<Vec<char>> {
