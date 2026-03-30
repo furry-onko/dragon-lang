@@ -37,50 +37,39 @@ pub fn await_input(msg: Option<&str>) -> String {
 	user_input
 }
 
+pub fn without_last(text: &str) -> &str {
+	match text.char_indices().next_back() {
+		Some((idx, _)) => &text[..idx],
+		None => "",
+	}
+}
+
 pub fn report(
-	context: &[char],	// Line
-	line: u32,			// Line number
-	ch: u32,			// Character number
+	context: &str,		// Line
+	line: usize,		// Line number
+	ch: usize,			// Character number
 	at: &str,			// Context (section > label)
 	error: SyntaxError,	// Error type
 ) {
-	use SyntaxError::*;
-	let context: &[char] =
-		if context.is_empty() { &[] }
-		else if context[context.len() - 1] == '\n' {
-			&context[..context.len() - 1]
+	use SyntaxError::*;	
+	let context: &str = 
+		if context.ends_with('\n') {
+			without_last(context)
 		}
-		else {context};
+		else { context };
 
-	println!(
-		"{}: {}",
-		"Error".red(),
-		format!("{:?}", error).bright_yellow()
-	);
-
-	println!(
-		"   {}: {}\n",
-		"At".red(),
-		at.bright_blue()
-	);
-
-	let context_format: String = context.iter().collect();
-	println!("{} | {}", line, context_format);
-
-	let line_number_len: u32 = (line.to_string().len() as u32);
-
+	self::error("### Error ###");
+	self::error(&format!("Type: {:?}", error));
+	self::error(&format!("Line: {}", line));
+	self::error(&format!("At: {}\n", at));
+	
+	println!("{}", context);
 	println!(
 		"{}^ {}\n",
-		" ".repeat((ch + line_number_len +3) as usize),
+		" ".repeat( (ch-1).try_into().unwrap() ),
 		error.get_fix()
-	);
-
-	println!(
-		"{} {} {}",
-		"Type".bright_blue(),
-		"dl man error [error name]".bright_magenta(),
-		"to get help".bright_blue()
-	);
+		);
+	println!("{}", error.explain());
 
 	process::exit(1);
 }

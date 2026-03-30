@@ -46,13 +46,27 @@ fn tokenize(content: Vec<String>) -> Program {
 	process::exit(0);
 }
 
-fn line_check(line: &str, line_num: usize) -> Line {
+fn line_check(line: &str, line_num: usize) -> Option<Line> {
+	use visual::SyntaxError::*;
+
+	let mut line_ret = Line(Vec::new());
+	let mut symbol_stack = Vec::<Token>::new();
+
 	for (ch_num, ch) in line.chars().enumerate() {
-
-
+		if ch == ';' {
+			if symbol_stack.len() > 0 {
+				visual::report(
+					line,
+					line_num,
+					ch_num,
+					"Tokenizer",
+					UnclosedBracket,
+				);
+			}
+		}
 	}
 
-	Line(vec![])
+	Some(line_ret)
 }
 
 enum State {
