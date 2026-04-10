@@ -42,7 +42,7 @@ pub fn location_exists(location: &str) -> bool {
 
 pub fn read_file_string(path: &str) -> String {
 	if !location_exists(path) {
-		visual::error("File not found");
+		visual::error(&format!("File not found: {}", path));
 		process::exit(1);
 	}
 

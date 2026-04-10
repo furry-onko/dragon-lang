@@ -35,10 +35,7 @@ T - Type
 */
 
 fn tokenize(content: Vec<String>) -> Program {
-	use State::*;
-
 	let mut line = Line(vec![]);
-
 	for (line_num, line) in content.iter().enumerate() {
 		line_check(line, line_num);
 	}
@@ -47,28 +44,121 @@ fn tokenize(content: Vec<String>) -> Program {
 }
 
 fn line_check(line: &str, line_num: usize) -> Option<Line> {
+	use State::*;
 	use visual::SyntaxError::*;
+
+	let mut state = Default;
+	let mut expect_next = Default;
 
 	let mut line_ret = Line(Vec::new());
 	let mut symbol_stack = Vec::<Token>::new();
+	let mut string_buffer = String::new();
+
+	let mut cnum: usize = 0;
 
 	for (ch_num, ch) in line.chars().enumerate() {
+		cnum = ch_num;
+
 		if ch == ';' {
-			if symbol_stack.len() > 0 {
-				visual::report(
-					line,
-					line_num,
-					ch_num,
-					"Tokenizer",
-					UnclosedBracket,
-				);
+			if state != InString {
+				if symbol_stack.len() > 0 {
+					visual::report(
+						line,
+						line_num,
+						ch_num,
+						"Tokenizer",
+						UnclosedBracket,
+					);
+				}
+				return Some(line_ret);
 			}
 		}
+
+		match ch {
+			'.' => line_ret.0.push(Token::Dot),
+			'>' => line_ret.0.push(Token::Returns),
+			':' => line_ret.0.push(Token::Colon),
+			',' => line_ret.0.push(Token::Comma),
+			'#' => line_ret.0.push(Token::Hash),
+			'$' => line_ret.0.push(Token::Dollar),
+			'%' => line_ret.0.push(Token::Percent),
+			'+' => line_ret.0.push(Token::Plus),		
+			'-' => line_ret.0.push(Token::Minus),
+			'*' => line_ret.0.push(Token::Asterisk),
+			'=' => line_ret.0.push(Token::Equals),
+			'_' => line_ret.0.push(Token::Underscore),
+			_ => (),
+		}
+
+		if ch == '\'' {
+			match state {
+				Default => {
+					state = InString;
+					symbol_stack.push(Token::Quote);
+					continue;
+				},
+				InString => {
+					line_ret.0.push(
+						Token::String(
+							std::mem::take(&mut string_buffer)
+						)
+					);
+					state = Default;
+					symbol_stack.pop();
+					continue;
+				},
+				_ => {
+					visual::report(
+						line,
+						line_num,
+						ch_num,
+						"Tokenizer",
+						UnexpectedToken,
+					);
+				}
+			}
+		}
+
+		if ch.is_ascii_alphabetic() {
+			match state {
+				InString => {
+					string_buffer.push(ch);
+					continue;
+				}
+
+				Default => {
+
+				}
+
+				_ => ()
+			}
+		}
+
+		match state {
+			InString => {
+				string_buffer.push(ch);
+			}
+			
+			_ => ()
+		}
 	}
+
+	if symbol_stack.len() > 0 {
+		visual::report(
+			line,
+			line_num,
+			cnum,
+			"Tokenizer",
+			UnclosedBracket,
+		);
+	}
+
+	println!("{:#?}", line_ret);
 
 	Some(line_ret)
 }
 
+#[derive(PartialEq)]
 enum State {
     Default,
     InNumber,
@@ -99,6 +189,7 @@ enum Token {
 	SqBracketOpen, SqBracketClose,	// []
 	CuBracketOpen, CuBracketClose,	// {}
 
+	Quote,		// '
 	Returns,	// >
 	Colon,		// :
 	Dot,		// .
@@ -106,7 +197,7 @@ enum Token {
 	Hash,		// #
 	Dollar,		// $
 	Percent,	// %
-	Unknown,
+	Unknown(char),
 }
 
 impl Token {

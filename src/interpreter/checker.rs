@@ -18,7 +18,7 @@ pub fn initial_file_summary_check(summary: &FileSummary) {
 		},
 		Mode::RunF => {
 			if !file::location_exists(&summary.path) {
-				visual::error("Could not find file specified.");
+				visual::error(&format!("Could not find file specified. {}", &summary.path));
 				process::exit(1);
 			}
 			tokenizer::start(&summary.path);

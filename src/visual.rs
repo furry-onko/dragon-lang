@@ -13,11 +13,11 @@ pub fn info_green(text: &str) {
 }
 
 pub fn warn(text: &str) {
-	println!("{}", text.bright_yellow());
+	eprintln!("{}", text.bright_yellow());
 }
 
 pub fn error(text: &str) {
-	println!("{}", text.red());
+	eprintln!("{}", text.red());
 }
 
 pub fn await_input(msg: Option<&str>) -> String {
@@ -58,15 +58,48 @@ pub fn report(
 		}
 		else { context };
 
-	self::error("### Error ###");
-	self::error(&format!("Type: {:?}", error));
-	self::error(&format!("Line: {}", line));
-	self::error(&format!("At: {}\n", at));
+	eprintln!(
+		"{}{}{}",
+		"###".red().bold(),
+		"Error".white(),
+		"###".red().bold()
+	);
+
+	eprintln!(
+		"{}: {:?}",
+		"Type".yellow().bold(),
+		error
+	);
+
+	eprintln!(
+		"{}: {}",
+		"Line".yellow().bold(),
+		line
+	);
+
+	eprintln!(
+		"{}: {}\n",
+		"At".yellow().bold(),
+		at
+	);
 	
-	println!("{}", context);
+	// println!("{}", context);
+	
+	for line in context.lines() {
+		for ch in line.chars() {
+			if ch == ' ' {
+				print!("{}", ".".bright_black());
+			}
+			else { 
+				print!("{ch}");
+			}
+		}
+		println!("");
+	}
+
 	println!(
 		"{}^ {}\n",
-		" ".repeat( (ch-1).try_into().unwrap() ),
+		" ".repeat( (ch).try_into().unwrap() ),
 		error.get_fix()
 		);
 	println!("{}", error.explain());
